@@ -1,5 +1,5 @@
 --DROP TABLE IF EXISTS problem_instances;
---DROP TABLE IF EXISTS edges;
+DROP TABLE IF EXISTS edges;
 DROP TABLE IF EXISTS candidates;
 DROP TABLE IF EXISTS nodes;
 
@@ -12,11 +12,12 @@ CREATE TABLE problem_instances(
 );
 
 CREATE TABLE edges(
+	id SERIAL PRIMARY KEY,
 	problem_id int,
 	edge_no int,
 	node1 int,
 	node2 int,
-	PRIMARY KEY(problem_id, edge_no),
+	UNIQUE(problem_id, edge_no),
 	CONSTRAINT fk_edges_problem_id
 		FOREIGN KEY(problem_id)
 			REFERENCES problem_instances(id)
