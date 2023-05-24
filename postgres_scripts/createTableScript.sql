@@ -50,10 +50,10 @@ CREATE TABLE candidates(
 );
 
 CREATE TABLE nodes(
+	id SERIAL PRIMARY KEY,
 	candidate_id int,
 	node int,
 	color int,
-	PRIMARY KEY (candidate_id, node),
 	CONSTRAINT fk_nodes_candidate_id
 		FOREIGN KEY(candidate_id)
 			REFERENCES candidates(id)
