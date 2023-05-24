@@ -1,8 +1,6 @@
-package org.example;
+package org.example.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
 
 import java.util.List;
 

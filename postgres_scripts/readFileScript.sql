@@ -51,7 +51,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT parse_file('D:/Facultate/An2sem2/Java/AlgoritmGenetic/myciel5.col', 'myciel5');
+SELECT parse_file('D:\Facultate\An2sem2\GeneticAlgorithmVisualizer\GeneticAlgorithmVisualizer\src\instances\myciel5.col', 'myciel5');
 
 SELECT * FROM edges;
 SELECT * FROM problem_instances;

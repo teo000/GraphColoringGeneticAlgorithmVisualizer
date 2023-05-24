@@ -1,5 +1,6 @@
---DROP TABLE IF EXISTS problem_instances;
+DROP TABLE IF EXISTS problem_instances;
 DROP TABLE IF EXISTS edges;
+DROP TABLE IF EXISTS solutions;
 DROP TABLE IF EXISTS candidates;
 DROP TABLE IF EXISTS nodes;
 
@@ -7,37 +8,45 @@ DROP TABLE IF EXISTS nodes;
 CREATE TABLE problem_instances(
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE,
-	nodes_no int,
-	edges_no int
+	nodes_no int NOT NULL,
+	edges_no int NOT NULL
 );
 
 CREATE TABLE edges(
-	id SERIAL PRIMARY KEY,
 	problem_id int,
-	edge_no int,
-	node1 int,
-	node2 int,
+	edge_no int NOT NULL,
+	node1 int NOT NULL,
+	node2 int NOT NULL,
+	PRIMARY KEY(problem_id, edge_no),
 	UNIQUE(problem_id, edge_no),
 	CONSTRAINT fk_edges_problem_id
 		FOREIGN KEY(problem_id)
 			REFERENCES problem_instances(id)
 );
 
-CREATE TABLE solution(
+CREATE TABLE solutions(
 	id SERIAL PRIMARY KEY,
 	problem_id int,
-	mutation_prob DOUBLE PRECISION,
-	crossover_prob DOUBLE PRECISION
-)
+	mutation_prob DOUBLE PRECISION NOT NULL,
+	crossover_prob DOUBLE PRECISION NOT NULL,
+	population_size int NOT NULL,
+	generations_no int NOT NULL,
+	CONSTRAINT fk_solutions_problem_id
+		FOREIGN KEY(problem_id)
+			REFERENCES problem_instances(id)
+);
+
+
 
 CREATE TABLE candidates(
 	id SERIAL PRIMARY KEY,
-	problem_id int,
-	generation int, 
+	solution_id int,
+	generation int ,
 	candidate_index int,
-	CONSTRAINT fk_candidates_problem_id
-		FOREIGN KEY(problem_id)
-			REFERENCES problem_instances(id)
+	UNIQUE(solution_id, generation, candidate_index),
+	CONSTRAINT fk_candidates_solution_id
+		FOREIGN KEY(solution_id)
+			REFERENCES solutions(id)
 );
 
 CREATE TABLE nodes(
