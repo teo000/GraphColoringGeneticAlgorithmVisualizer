@@ -1,7 +1,7 @@
 --DROP TABLE IF EXISTS problem_instances;
 --DROP TABLE IF EXISTS edges;
---DROP TABLE IF EXISTS candidates;
---DROP TABLE IF EXISTS nodes;
+DROP TABLE IF EXISTS candidates;
+DROP TABLE IF EXISTS nodes;
 
 
 CREATE TABLE problem_instances(
@@ -21,6 +21,13 @@ CREATE TABLE edges(
 		FOREIGN KEY(problem_id)
 			REFERENCES problem_instances(id)
 );
+
+CREATE TABLE solution(
+	id SERIAL PRIMARY KEY,
+	problem_id int,
+	mutation_prob DOUBLE PRECISION,
+	crossover_prob DOUBLE PRECISION
+)
 
 CREATE TABLE candidates(
 	id SERIAL PRIMARY KEY,
