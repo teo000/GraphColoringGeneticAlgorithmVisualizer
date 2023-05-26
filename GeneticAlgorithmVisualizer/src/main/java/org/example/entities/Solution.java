@@ -11,6 +11,8 @@ public class Solution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Transient
+    private int candidateLength;
     @Column(name = "mutation_prob")
     private double mutationProb;
     @Column(name = "crossover_prob")
@@ -31,12 +33,13 @@ public class Solution {
     protected Solution() {
     }
 
-    public Solution(Problem problemInstance, double mutationProb, double crossoverProb, int populationSize, int generationsNo ) {
+    public Solution(Problem problemInstance, double mutationProb, double crossoverProb, int populationSize, int generationsNo, int candidateLength) {
         this.mutationProb = mutationProb;
         this.crossoverProb = crossoverProb;
         this.populationSize = populationSize;
         this.generationsNo = generationsNo;
         this.problemInstance = problemInstance;
+        this.candidateLength = candidateLength;
     }
     public void addCandidate(Candidate candidate){
         candidates.add(candidate);

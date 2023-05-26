@@ -11,9 +11,9 @@ public class Edge {
     private Long problemId;
     @Id
     @Column(name = "edge_no")
-    private int edgeNo;
-    private int node1;
-    private int node2;
+    public int edgeNo;
+    public int node1;
+    public int node2;
 
     @Override
     public String toString() {

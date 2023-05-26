@@ -14,8 +14,12 @@ public class Problem {
     @Column(name = "id", nullable = false)
     private Long id;
     private String name;
+    @Column(name = "nodes_no")
+    private int nodesNo;
+    @Column(name = "edges_no")
+    private int edgesNo;
     @OneToMany(targetEntity = Edge.class, cascade = CascadeType.ALL,
-                fetch = FetchType.LAZY, orphanRemoval = true)
+                fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "problem_id", referencedColumnName = "id")
     private List<Edge> edges;
 
@@ -37,5 +41,13 @@ public class Problem {
 
     public List<Edge> getEdges() {
         return edges;
+    }
+
+    public int getNodesNo() {
+        return nodesNo;
+    }
+
+    public int getEdgesNo() {
+        return edgesNo;
     }
 }
