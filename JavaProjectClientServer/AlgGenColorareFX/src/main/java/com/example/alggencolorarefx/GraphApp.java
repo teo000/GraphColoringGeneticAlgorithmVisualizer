@@ -372,7 +372,8 @@ public class GraphApp extends Application {
 
                     //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
                     Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
-
+                    infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+                    infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
 
                     System.out.println(generation.getBestCandidate());
                     infoLabel.setText("Update button clicked");
@@ -397,6 +398,8 @@ public class GraphApp extends Application {
             //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
             Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
             System.out.println(generation.getBestCandidate());
+            infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+            //infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
             if (!generation.isFinalGen()) {
                 updateNodes(generation.getBestCandidate());
                 currentGeneration++;

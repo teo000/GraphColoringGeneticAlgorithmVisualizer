@@ -14,4 +14,8 @@ public class Generation {
     public boolean isFinalGen() {
         return finalGen;
     }
+
+    public int getBestScore() {
+        return bestScore;
+    }
 }
