@@ -21,6 +21,8 @@ public class Generation {
     private int bestScore;
     @Column(name = "generation")
     private int genNo;
+    @Column(name = "final_gen")
+    private boolean finalGen = false;
 
 //    @OneToMany(targetEntity = Candidate.class, cascade = CascadeType.ALL,
 //            fetch = FetchType.LAZY, orphanRemoval = true)
@@ -57,6 +59,10 @@ public class Generation {
 
     public String getBestCandidate() {
         return bestCandidate;
+    }
+
+    public void setFinalGen(boolean finalGen) {
+        this.finalGen = finalGen;
     }
 
     @Override
