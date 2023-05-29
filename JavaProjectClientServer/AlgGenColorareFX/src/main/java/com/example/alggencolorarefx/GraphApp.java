@@ -1,5 +1,6 @@
-package org.example;
+package com.example.alggencolorarefx;
 
+import com.example.alggencolorarefx.graph.Problem;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -18,6 +19,9 @@ import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 
 import java.io.File;
 import java.io.FileReader;
@@ -25,6 +29,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import com.google.gson.Gson;
+
+import static java.lang.Thread.sleep;
 
 
 public class GraphApp extends Application {
@@ -60,7 +67,7 @@ public class GraphApp extends Application {
     };
 
     String infoAboutGeneticAlg = "Nr nodes: 5 Nr edges: 5 Best nr of colors so far:";
-
+    long solution_id;
     private double getRandomDouble(double min, double max) {
         return min + Math.random() * (max - min);
     }
@@ -104,12 +111,46 @@ public class GraphApp extends Application {
         }
     }
 
+    private void resetNodesEdgesFromProblemInstance(Problem problem){
+        int nrNodes = problem.getNodesNo();
+        int nrEdges = problem.getEdgesNo();
+
+        nodePositions = new double[nrNodes][2];
+        nodeColors = new Color[nrNodes];
+        for (int i = 0; i < nrNodes; i++) {
+            nodePositions[i][0] = getRandomDouble(50, 750);
+            nodePositions[i][1] = getRandomDouble(50, 450);
+
+            float hue = 0; // Initial hue value
+            float saturation = 1.0f; // Adjust saturation as desired
+            float brightness = 1.0f; // Adjust brightness as desired
+            //nodeColors[i] = Color.hsb((hue + i * 15) % 360, 1f, 1f);
+            nodeColors[i] = Color.rgb((int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)));
+        }
+
+        edges = new int[nrEdges][2];
+
+        for (int i = 0; i < nrEdges; i++) {
+            int n1, n2;
+            n1 = problem.getEdges().get(i).node1;
+            n2 = problem.getEdges().get(i).node2;
+            edges[i][0] = n1 - 1;
+            edges[i][1] = n2 - 1;
+        }
+
+        infoAboutGeneticAlg = "Nr nodes: " + nrNodes + " Nr edges: " + nrEdges + " Best nr of colors so far:";
+
+    }
+
     private List<Circle> nodes; // List to store the node circles
     private List<Line> edgesList;
     private Label infoLabel;
     private Label infoGeneticAlgLabel;
 
     private GraphPane graphPane;
+
+    private Problem instance;
+    private int currentGeneration = 0 ;
 
     @Override
     public void start(Stage primaryStage) {
@@ -126,7 +167,7 @@ public class GraphApp extends Application {
         //root.setBottom(bottomNavBar);
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
-        //scene.getStylesheets().add(getClass().getResource("/org.example/styles.css").toString()); // Load external CSS file
+        scene.getStylesheets().add(getClass().getResource("styles.css").toString()); // Load external CSS file
         primaryStage.setTitle("Graph Application");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -210,6 +251,19 @@ public class GraphApp extends Application {
             }
         });
 
+        Button loadProblem1 = new Button("Load problem 1");
+        loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event){
+                HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/1").asJson();
+                Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
+                resetNodesEdgesFromProblemInstance(problem);
+                graphPane.loadGraph();
+                instance = problem;
+                System.out.println(problem);
+            }
+        });
+
         Button inputButton = new Button("Input manually");
         inputButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -251,21 +305,56 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
+                solution_id = Unirest.post("http://localhost:5000/problem/1").asObject(Long.class).getBody();
+//                while(apiResponse.getBody()==null)
+//                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
+//                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);
+                System.out.println(solution_id);
+
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+//                HttpResponse<JsonNode> response = Unirest.get("http://localhost:5000/solution/35/1").asJson();
+//                String string = new Gson().fromJson(response.getBody().toString(), String.class);
+//                System.out.println(string);
+
+
+//                for(int i =1 ;i <2000 ; i++) {
+//                    //HttpResponse<JsonNode> response = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + i).asJson();
+//                    String string = new Gson().fromJson(response.getBody().toString(), String.class);
+//                    System.out.println(string);
+//                }
+
                 resetInfoLabelAfterDelay();
             }
         });
 
-        Button pauseButton = new Button("Pause");
+        Button pauseButton = new Button("Update");
         pauseButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 // Perform action for Pause button
-                infoLabel.setText("Pause button clicked");
+               // for(int i =1; i<10; i++) {
+                    String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
+                    //String string = new Gson().fromJson(response.getBody().toString(), String.class);
+                    System.out.println(string);
+                    infoLabel.setText("Update button clicked");
+                    updateNodes(string);
+                    currentGeneration++;
+//                    try {
+//                        sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+             //   }
                 resetInfoLabelAfterDelay();
             }
         });
 
-        navbar.getChildren().addAll(loadButton, inputButton, goToTextField, goToButton, startButton, pauseButton);
+        navbar.getChildren().addAll(loadButton, loadProblem1, inputButton, goToTextField, goToButton, startButton, pauseButton);
         return navbar;
     }
 
@@ -390,8 +479,15 @@ public class GraphApp extends Application {
         }
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private void updateNodes(String string){
+
+        String[] split = string.split(",");
+        for(int i = 0 ; i< instance.getNodesNo(); i++) {
+            int colorIndex = Integer.parseInt(split[i]);
+            Color color = nodeColors[colorIndex];
+            nodes.get(i).setFill(color);
+            //System.out.println(split[i]);
+        }
     }
 
 }

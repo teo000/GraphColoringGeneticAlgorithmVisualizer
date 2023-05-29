@@ -1,0 +1,15 @@
+ .button {
+     -fx-font-size: 12px;
+     -fx-padding: 8px 12px;
+     -fx-background-color: rgb(207, 210, 212);
+     -fx-text-fill: rgb(26, 34, 38);
+ }
+
+ .button:hover {
+     -fx-background-color: rgb(109, 188, 227);
+ }
+
+ .textField {
+    -fx-font-size: 12px;
+    -fx-padding: 8px 12px;
+ }
