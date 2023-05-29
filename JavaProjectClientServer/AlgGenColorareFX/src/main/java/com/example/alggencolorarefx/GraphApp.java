@@ -4,11 +4,13 @@ import com.example.alggencolorarefx.graph.Problem;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -66,8 +68,20 @@ public class GraphApp extends Application {
             Color.RED,
             Color.GREEN,
             Color.BLUE,
-            Color.GREEN,
-            Color.PURPLE
+            Color.ORANGE,
+            Color.PURPLE,
+            Color.CORNFLOWERBLUE,
+            Color.DARKSEAGREEN
+    };
+
+    private Color[] presetNodeColors = {
+            Color.rgb(217, 66, 20),
+            Color.rgb(237, 181, 28),
+            Color.rgb(44, 124, 199),
+            Color.rgb(52, 140, 84),
+            Color.rgb(227, 130, 61),
+            Color.rgb(35, 36, 120),
+            Color.rgb(115, 45, 156)
     };
 
     String infoAboutGeneticAlg = "Nr nodes: 5 Nr edges: 5 Best nr of colors so far:";
@@ -125,11 +139,10 @@ public class GraphApp extends Application {
             nodePositions[i][0] = getRandomDouble(50, 750);
             nodePositions[i][1] = getRandomDouble(50, 450);
 
-            float hue = 0; // Initial hue value
-            float saturation = 1.0f; // Adjust saturation as desired
-            float brightness = 1.0f; // Adjust brightness as desired
-            //nodeColors[i] = Color.hsb((hue + i * 15) % 360, 1f, 1f);
-            nodeColors[i] = Color.rgb((int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)));
+            if ( i >= presetNodeColors.length)
+                nodeColors[i] = Color.rgb((int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)), (int)(getRandomDouble(20, 250)));
+            else
+                nodeColors[i] = presetNodeColors[i];
         }
 
         edges = new int[nrEdges][2];
@@ -151,10 +164,18 @@ public class GraphApp extends Application {
     private Label infoLabel;
     private Label infoGeneticAlgLabel;
 
+    private ComboBox<String> compareTypeComboBox;
+    private ComboBox<String> firstComboBox;
+    private ComboBox<String> secondComboBox;
+    private Button startComparisonButton;
+
+
     private GraphPane graphPane;
 
     private Problem instance;
     private int currentGeneration = 0 ;
+
+    private String chosenProblem;
 
     private ScheduledExecutorService executorService;
 
@@ -171,10 +192,11 @@ public class GraphApp extends Application {
 
         graphPane = new GraphPane();
         HBox topNavBar = createNavBar();
-        //HBox bottomNavBar = createNavBar();
+        HBox bottomNavBar = createBottomBar();
 
         root.setCenter(graphPane);
         root.setTop(topNavBar);
+        root.setBottom(bottomNavBar);
 
         //root.setBottom(bottomNavBar);
 
@@ -221,6 +243,88 @@ public class GraphApp extends Application {
         }
     }
 
+    private HBox createBottomBar() {
+        HBox bottomBar = new HBox(10);
+        bottomBar.setPadding(new Insets(10));
+
+        BackgroundFill backgroundFill = new BackgroundFill(Color.rgb(60, 128, 171), CornerRadii.EMPTY, Insets.EMPTY);
+        Background background = new Background(backgroundFill);
+        bottomBar.setBackground(background);
+
+        Label infoComparison = new Label("Compare");
+        infoComparison.setPadding(new Insets(10));
+
+        compareTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(
+                "Two problems", "Two algorithms same problem", "One problem on a number of runs")
+        );
+        compareTypeComboBox.setPromptText("Choose type of comparison");
+        compareTypeComboBox.setOnAction(event -> updateComboBoxOptions());
+
+        firstComboBox = new ComboBox<>();
+        secondComboBox = new ComboBox<>();
+        firstComboBox.setVisible(false);
+        secondComboBox.setVisible(false);
+
+        startComparisonButton = new Button("Start comparison");
+        startComparisonButton.setVisible(false);
+
+        startComparisonButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                infoLabel.setText("Start comparison button clicked");
+                resetInfoLabelAfterDelay();
+            }
+        });
+
+        bottomBar.getChildren().addAll(infoComparison, compareTypeComboBox, firstComboBox, secondComboBox, startComparisonButton);
+        return bottomBar;
+    }
+
+    private void updateComboBoxOptions() {
+        String selectedOption = compareTypeComboBox.getValue();
+        String[] possibleProblems = {"5", "6", "7"};
+
+        if (selectedOption != null) {
+            switch (selectedOption) {
+                case "Two problems":
+                    // aici setezi gen posibilele instante de probleme
+                    firstComboBox.setItems(FXCollections.observableArrayList(
+                            possibleProblems));
+                    secondComboBox.setItems(FXCollections.observableArrayList(
+                            possibleProblems));
+                    firstComboBox.setPromptText("Choose first problem");
+                    firstComboBox.setVisible(true);
+                    secondComboBox.setPromptText("Choose second problem");
+                    secondComboBox.setVisible(true);
+                    break;
+                case "Two algorithms same problem":
+                    firstComboBox.setItems(FXCollections.observableArrayList(
+                            possibleProblems));
+                    firstComboBox.setPromptText("Choose problem");
+                    firstComboBox.setVisible(true);
+                    secondComboBox.setVisible(false);
+                    break;
+                case "One problem on a number of runs":
+                    firstComboBox.setItems(FXCollections.observableArrayList(
+                            possibleProblems));
+                    secondComboBox.setItems(FXCollections.observableArrayList(
+                            "5", "10", "15", "20", "30"));
+                    firstComboBox.setPromptText("Choose problem");
+                    firstComboBox.setVisible(true);
+                    secondComboBox.setPromptText("Choose number of runs");
+                    secondComboBox.setVisible(true);
+                    break;
+                default:
+                    secondComboBox.setItems(FXCollections.emptyObservableList());
+                    break;
+            }
+            startComparisonButton.setVisible(true);
+        } else {
+            firstComboBox.setVisible(false);
+            secondComboBox.setVisible(false);
+            startComparisonButton.setVisible(false);
+        }
+    }
 
     private HBox createNavBar() {
         HBox navbar = new HBox(10);
@@ -231,6 +335,7 @@ public class GraphApp extends Application {
         navbar.setBackground(background);
 
         Button loadButton = new Button("Load from file");
+
         loadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -263,16 +368,33 @@ public class GraphApp extends Application {
             }
         });
 
-        Button loadProblem1 = new Button("Load problem 1");
+        ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
+                "5", "6", "Option 3", "Option 4")
+        );
+        selectDropdown.setPromptText("Choose problem");
+
+        Button loadProblem1 = new Button("Load problem");
         loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event){
-                HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/5").asJson();
-                Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
-                resetNodesEdgesFromProblemInstance(problem);
-                graphPane.loadGraph();
-                instance = problem;
-                System.out.println(problem);
+                if (selectDropdown.getValue() != null) {
+                    String value = selectDropdown.getValue();
+                    chosenProblem = value;
+
+                    infoLabel.setText("Loading problem " + value);
+                    resetInfoLabelAfterDelay();
+
+                    HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/" + value).asJson();
+                    Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
+                    resetNodesEdgesFromProblemInstance(problem);
+                    graphPane.loadGraph();
+                    instance = problem;
+                    System.out.println(problem);
+                }
+                else {
+                    infoLabel.setText("You have to choose a problem first!");
+                    resetInfoLabelAfterDelay();
+                }
             }
         });
 
@@ -317,7 +439,7 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
-                solution_id = Unirest.post("http://localhost:5000/problem/5").asObject(Long.class).getBody();
+                solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
 //                while(apiResponse.getBody()==null)
 //                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
 //                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);
@@ -339,7 +461,7 @@ public class GraphApp extends Application {
                 // Perform action for Start button
                 infoLabel.setText("startAutomat Button clicked");
                 if (currentGeneration == 0) {
-                    solution_id = Unirest.post("http://localhost:5000/problem/5").asObject(Long.class).getBody();
+                    solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
                 }
 
                 System.out.println(solution_id);
@@ -383,7 +505,19 @@ public class GraphApp extends Application {
             }
         });
 
-        navbar.getChildren().addAll(loadButton, loadProblem1, inputButton, goToTextField, goToButton, startButton, startAutomatButton, pauseButton, updateButton);
+        Button getFastButton = new Button("GetFast");
+        getFastButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                infoLabel.setText("Get Fast button clicked");
+
+                resetInfoLabelAfterDelay();
+            }
+        });
+
+
+        navbar.getChildren().addAll(loadButton, selectDropdown, loadProblem1, inputButton, goToTextField, goToButton, startButton, startAutomatButton, pauseButton, updateButton, getFastButton);
         return navbar;
     }
 
@@ -456,6 +590,7 @@ public class GraphApp extends Application {
                         edge.setStroke(Color.RED);
 
                         nodes.get(nodeIndex2).setStroke(Color.RED);
+                        nodes.get(nodeIndex2).setStrokeWidth(2);
                     }
                     else if (indexNode == nodeIndex2)
                     {
@@ -463,6 +598,11 @@ public class GraphApp extends Application {
                         edge.setStroke(Color.RED);
 
                         nodes.get(nodeIndex1).setStroke(Color.RED);
+                        nodes.get(nodeIndex2).setStrokeWidth(2);
+                    }
+                    else {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.rgb(180, 180, 180));
                     }
                 }
             }
@@ -486,6 +626,7 @@ public class GraphApp extends Application {
                         edge.setStroke(Color.rgb(100, 100, 100));
 
                         nodes.get(nodeIndex2).setStroke(Color.BLACK);
+                        nodes.get(nodeIndex2).setStrokeWidth(1);
                     }
                     else if (indexNode == nodeIndex2)
                     {
@@ -493,6 +634,11 @@ public class GraphApp extends Application {
                         edge.setStroke(Color.rgb(100, 100, 100));
 
                         nodes.get(nodeIndex1).setStroke(Color.BLACK);
+                        nodes.get(nodeIndex2).setStrokeWidth(1);
+                    }
+                    else {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.rgb(100, 100, 100));
                     }
                 }
             }
