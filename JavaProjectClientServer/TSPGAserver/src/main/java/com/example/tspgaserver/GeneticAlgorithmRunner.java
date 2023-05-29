@@ -22,28 +22,22 @@ public class GeneticAlgorithmRunner {
     ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public void startGA(Solution solution){
-        //this.geneticAlgorithm = geneticAlgorithm;
-        //geneticAlgorithm.initGA();
-        //geneticAlgorithm.updateSolution();
-        //solutionRepository.save(geneticAlgorithm.getSolution());
-        executor.execute(() -> runGA(solution.geneticAlgorithm));
-//        geneticAlgorithm.saveSolution();
-//        solutionRepository.save(geneticAlgorithm.getSolution());
+        /*
+        GeneticAlgorithm ga = solution.geneticAlgorithm;
+        for (int t = 0; t < ga.MAX && ga.running; t++, ga.tNou++) {
+            ga.alg_gen(t);
+            ga.setBestSoFar(t);
+            solutionService.saveSolution(ga.getSolution());
+        }
+        ga.finalResult = ga.lastThatActuallyWorked + 1;
 
-//        for (int t = 0; t < geneticAlgorithm.MAX && geneticAlgorithm.running; t++, geneticAlgorithm.tNou++) {
-//            geneticAlgorithm.alg_gen(t);
-//            //          if(t%10 == 0) {
-//            //               ga.updateSolution(t);
-////            else
-//            geneticAlgorithm.setBestSoFar(t);
-//            solutionRepository.save(geneticAlgorithm.getSolution());
-//            //           }
-//        }
-//        geneticAlgorithm.finalResult = geneticAlgorithm.lastThatActuallyWorked + 1;
-//
-//        geneticAlgorithm.updateSolution(2000);
-//        solutionRepository.save(geneticAlgorithm.getSolution());
-
+        ga.updateSolution(2000);
+        solutionRepository.save(ga.getSolution());
+        */
+        //executor.execute(() -> runGA(solution.geneticAlgorithm));
+        executor.submit(() -> {
+            runGA(solution.geneticAlgorithm);
+        });
     }
     public void runGA(GeneticAlgorithm ga){
 
@@ -54,8 +48,8 @@ public class GeneticAlgorithmRunner {
         }
         ga.finalResult = ga.lastThatActuallyWorked + 1;
 
-        ga.updateSolution(2000);
-        solutionRepository.save(ga.getSolution());
+        //ga.updateSolution(2000);
+        //solutionRepository.save(ga.getSolution());
 
     }
 }

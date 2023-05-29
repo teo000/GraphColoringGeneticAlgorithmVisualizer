@@ -108,6 +108,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
     public int kStart, minim_general, lastThatActuallyWorked, population_size, lgsir;
     private int[] sir_curent;
     private int[] sir_next;
+    private int[] sir_best;
     public int tNou;
     private boolean wentToFar;
     public int MAX = 2000;
@@ -126,6 +127,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
 
         sir_curent = new int[lgsir];
         sir_next = new int[lgsir];
+        sir_best = new int[lgsir];
         random_color(sir_curent, dimensiune * candidateLength, kStart);
 
         tNou = 0;
@@ -179,7 +181,6 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
 
             if (generatie == MAX - 1 && i == 0) {
                 finalResult = lastThatActuallyWorked + 1;
-                running = false;
             }
         }
         if (valori[0] == 0) {
@@ -197,6 +198,8 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         for (int i = 0; i < nr_best_elitism; i++) {
             copy_sir(sir_next, i * candidateLength, sir_curent, indici[i] * candidateLength, candidateLength);
         }
+
+        copy_sir(sir_best, 0, sir_curent, indici[0]*candidateLength, candidateLength);
 
         double un_random = Math.random();
         int de_cate_ori_baga_elitisti = 1;
@@ -307,223 +310,17 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
     public void setBestSoFar(int genNo){
         System.out.println("setBestSoFar, genNo = " + genNo);
         Generation generation = new Generation(genNo);
-        StringBuilder sb = new StringBuilder(dimensiune);
+        StringBuilder sb = new StringBuilder(candidateLength);
 
-        for(int nodeIndex = 0; nodeIndex < dimensiune ;nodeIndex ++) {
-            sb.append(Integer.toString(sir_curent[nodeIndex]));
+        for(int nodeIndex = 0; nodeIndex < candidateLength ;nodeIndex ++) {
+            sb.append(Integer.toString(sir_best[nodeIndex]));
             sb.append(',');
         }
 
         generation.setBestCandidate(sb.toString());
         generation.setBestScore(finalResult);
 
-
-//        List<Node> nodes = new ArrayList<>();
-//        for(int nodeIndex = 0; nodeIndex < dimensiune ;nodeIndex ++)
-//            nodes.add(new Node(nodeIndex, sir_curent[nodeIndex]));
-//        Candidate candidate = new Candidate(0, nodes);
-//        generation.addCandidate(candidate);
-//        generation.setBestSoFar(candidate);
         solution.addGeneration(generation);
     }
-    public void updateSolution(int genNo){
-//        System.out.println("update, genNo = " + genNo);
-//        Generation generation = new Generation(genNo);
-//        solution.addGeneration(generation);
-//        Candidate candidate = null;
-//
-//        for(int candidateIndex = 0; candidateIndex<dimensiune; candidateIndex++){
-//            List<Node> nodes = new ArrayList<>();
-//            for(int nodeIndex = 0; nodeIndex < dimensiune ;nodeIndex ++)
-//                nodes.add(new Node(nodeIndex, sir_curent[nodeIndex]));
-//            candidate = new Candidate(candidateIndex, nodes);
-//            generation.addCandidate(candidate);
-//        }
-//        generation.setBestSoFar(candidate);
-//        System.out.println(generation.getGenNo());
-//        solution.addGeneration(generation);
-
-        //solutionService.saveSolution(solution);
-       // solutionRepository.save(solution);
-    }
-
 
 }
-
-
-//    public static int alg_gen(int MAX, int dimensiune) {
-//        int kStart = maxDegree + 1;
-//        int minim_general = kStart;
-//        int lastThatActuallyWorked = minim_general;
-//
-//
-//        int population_size = dimensiune;
-//
-//        int lgsir = candidateLength * dimensiune + 5;
-//        int[] sir_curent = new int[lgsir];
-//        int[] sir_next = new int[lgsir];
-//        random_color(sir_curent, dimensiune * candidateLength, kStart);
-//
-//        int tNou = 0;
-//        boolean wentToFar = false;
-//
-//        for (int t = 0; t < MAX; t++, tNou++) {
-//            if (tNou > 20 && wentToFar) {
-//                kStart++;
-//                restart_color(sir_curent, dimensiune * candidateLength, kStart);
-//                minim_general = kStart;
-//                tNou = 0;
-//                wentToFar = false;
-//            }
-//            int[] valori = new int[405];
-//            int[] indici = new int[405];
-//            for (int i = 0; i < population_size; i++) {
-//                valori[i] = evaluate_graf(sir_curent, i*candidateLength, candidateLength);
-//                indici[i] = i;
-//            }
-//
-//            // elitism
-//            int nr_best_elitism = 20;
-//            for (int i = 0; i < nr_best_elitism; i++) {
-//                int val_min = valori[i];
-//                int indexMin = i;
-//                for (int j = i + 1; j < population_size; j++) {
-//                    if (valori[j] < val_min) {
-//                        indexMin = j;
-//                        val_min = valori[j];
-//                    }
-//                }
-//                int tempVal = valori[indexMin];
-//                valori[indexMin] = valori[i];
-//                valori[i] = tempVal;
-//
-//                int tempInd = indici[indexMin];
-//                indici[indexMin] = indici[i];
-//                indici[i] = tempInd;
-//
-//                if (t == MAX - 1 && i == 0) {
-//                    return lastThatActuallyWorked + 1;
-//                }
-//            }
-//            if (valori[0] == 0) {
-//                lastThatActuallyWorked = kStart;
-//                wentToFar = true;
-//                System.out.println(kStart + 1);
-//
-//                kStart = kStart - 2;
-//                //afis_color(sir_curent, indici[0] * n, n);
-//                restart_color(sir_curent, dimensiune * candidateLength, kStart);
-//                minim_general = kStart;
-//                tNou = 0;
-//            }
-//
-//            for (int i = 0; i < nr_best_elitism; i++) {
-//                copy_sir(sir_next, i * candidateLength, sir_curent, indici[i] * candidateLength, candidateLength);
-//            }
-//
-//            double un_random = Math.random();
-//            int de_cate_ori_baga_elitisti = 1;
-//            if (un_random > 0.33333)
-//                de_cate_ori_baga_elitisti++;
-//            if (un_random > 0.53333)
-//                de_cate_ori_baga_elitisti++;
-//            if (un_random > 0.700001)
-//                de_cate_ori_baga_elitisti++;
-//
-//            for (int i = 1; i < de_cate_ori_baga_elitisti; i++) {
-//                copy_sir(sir_next, nr_best_elitism * candidateLength * i, sir_next, 0, nr_best_elitism * candidateLength);
-//            }
-//
-//            int index_to_copy = nr_best_elitism * de_cate_ori_baga_elitisti;
-//
-//            // turneu
-//            int nr_random = 120;
-//            int nr_best_turneu = 60;
-//            if (de_cate_ori_baga_elitisti == 2)
-//                nr_best_turneu = 40;
-//            else if (de_cate_ori_baga_elitisti == 3)
-//                nr_best_turneu = 70;
-//            int cate_turnee = (population_size - nr_best_elitism * de_cate_ori_baga_elitisti) / nr_best_turneu;
-//
-//            for (int k = 0; k < cate_turnee; k++) {
-//                // set up
-//                int[] indici_alesi = new int[405];
-//                int[] indici_random = new int[405];
-//                int nr_indici_random = population_size;
-//                for (int i = 0; i < population_size; i++)
-//                    indici_random[i] = i;
-//
-//                // aleg nr random
-//                for (int i = 0; i < nr_random; i++) {
-//                    int index_random = (int) (Math.random() * nr_indici_random);
-//                    indici_alesi[i] = indici_random[index_random];
-//                    for (int j = index_random; j < nr_indici_random - 1; j++)
-//                        indici_random[j] = indici_random[j + 1];
-//                    nr_indici_random -= 1;
-//
-//                    int valoare_i = evaluate_graf(sir_curent, indici_alesi[i] * candidateLength, candidateLength);
-//                    valori[i] = valoare_i;
-//                    indici[i] = indici_alesi[i];
-//                }
-//
-//                // aleg cele mai bune din numerele random
-//                for (int i = 0; i < nr_best_turneu; i++) {
-//                    int val_min = valori[i];
-//                    int indexMin = i;
-//                    for (int j = i + 1; j < nr_random; j++) {
-//                        if (valori[j] < val_min) {
-//                            indexMin = j;
-//                            val_min = valori[j];
-//                        }
-//                    }
-//                    int tempVal = valori[indexMin];
-//                    valori[indexMin] = valori[i];
-//                    valori[i] = tempVal;
-//
-//                    int tempInd = indici[indexMin];
-//                    indici[indexMin] = indici[i];
-//                    indici[i] = tempInd;
-//                }
-//
-//                // adaug in nou sir
-//                for (int i = 0; i < nr_best_turneu; i++) {
-//                    copy_sir(sir_next, index_to_copy * candidateLength, sir_curent, indici[i] * candidateLength, candidateLength);
-//                    index_to_copy += 1;
-//                }
-//            }
-//
-//            double mutation_probability = 2.0 / (double)(candidateLength * dimensiune);
-//            double cross_over_probability = 0.9;
-//
-//            for (int i = 0; i < population_size - 1; i++) {
-//                double r = Math.random();
-//                if (r < cross_over_probability) {
-//                    int index_random = (int) (Math.random() * population_size);
-//                    cross_over(sir_next, i * candidateLength, sir_next, index_random * candidateLength, candidateLength);
-//                }
-//            }
-//
-//            for (int i = 0; i < population_size; i++) {
-//                double r = Math.random();
-//                if (r < mutation_probability) {
-//                    mutate(sir_next, i * candidateLength, candidateLength, kStart);
-//                }
-//            }
-//
-//            mutation_probability = (6.0 - de_cate_ori_baga_elitisti) / 10.0;
-//            for (int kk = 0; kk < 3; kk++) {
-//                for (int i = nr_best_elitism; i < population_size; i++) {
-//                    double r = Math.random();
-//                    if (r < mutation_probability) {
-//                        mutate(sir_next, i * candidateLength, candidateLength, kStart);
-//                        int index = (int) (Math.random() * candidateLength);
-//                        sir_next[i * candidateLength + index] = (int) (Math.random() * kStart) + 1;
-//                    }
-//                }
-//            }
-//
-//            copy_sir(sir_curent, 0, sir_next, 0, population_size * candidateLength);
-//        }
-//
-//        return lastThatActuallyWorked + 1;
-//    }
