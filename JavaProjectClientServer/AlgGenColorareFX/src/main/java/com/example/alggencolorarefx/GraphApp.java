@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.Scanner;
 import com.google.gson.Gson;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import static java.lang.Thread.sleep;
 
 
@@ -152,8 +156,16 @@ public class GraphApp extends Application {
     private Problem instance;
     private int currentGeneration = 0 ;
 
+    private ScheduledExecutorService executorService;
+
+    @Override
+    public void init() {
+        executorService = Executors.newSingleThreadScheduledExecutor();
+    }
+
     @Override
     public void start(Stage primaryStage) {
+
         BorderPane root = new BorderPane();
         //root.setPadding(new Insets(10));
 
@@ -316,46 +328,84 @@ public class GraphApp extends Application {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                resetInfoLabelAfterDelay();
+            }
+        });
 
-//                HttpResponse<JsonNode> response = Unirest.get("http://localhost:5000/solution/35/1").asJson();
-//                String string = new Gson().fromJson(response.getBody().toString(), String.class);
-//                System.out.println(string);
+        Button startAutomatButton = new Button("RunAutomat");
+        startAutomatButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                // Perform action for Start button
+                infoLabel.setText("startAutomat Button clicked");
+                if (currentGeneration == 0) {
+                    solution_id = Unirest.post("http://localhost:5000/problem/5").asObject(Long.class).getBody();
+                }
 
+                System.out.println(solution_id);
 
-//                for(int i =1 ;i <2000 ; i++) {
-//                    //HttpResponse<JsonNode> response = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + i).asJson();
-//                    String string = new Gson().fromJson(response.getBody().toString(), String.class);
-//                    System.out.println(string);
-//                }
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                startFetchingData();
+                resetInfoLabelAfterDelay();
+            }
+        });
+
+        Button pauseButton = new Button("Pause");
+        pauseButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                executorService.shutdown();
+
+                infoLabel.setText("Pause button clicked");
 
                 resetInfoLabelAfterDelay();
             }
         });
 
-        Button pauseButton = new Button("Update");
-        pauseButton.setOnAction(new EventHandler<ActionEvent>() {
+        Button updateButton = new Button("Update");
+        updateButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                // Perform action for Pause button
-               // for(int i =1; i<10; i++) {
+
                     String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
-                    //String string = new Gson().fromJson(response.getBody().toString(), String.class);
+
                     System.out.println(string);
                     infoLabel.setText("Update button clicked");
                     updateNodes(string);
                     currentGeneration++;
-//                    try {
-//                        sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        throw new RuntimeException(e);
-//                    }
-             //   }
+
                 resetInfoLabelAfterDelay();
             }
         });
 
-        navbar.getChildren().addAll(loadButton, loadProblem1, inputButton, goToTextField, goToButton, startButton, pauseButton);
+        navbar.getChildren().addAll(loadButton, loadProblem1, inputButton, goToTextField, goToButton, startButton, startAutomatButton, pauseButton, updateButton);
         return navbar;
+    }
+
+    private void startFetchingData() {
+        executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::fetchDataFromServer, 0, 10, TimeUnit.MILLISECONDS);
+    }
+
+    private void fetchDataFromServer() {
+        try {
+            String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
+            System.out.println(string);
+            if (!string.equals("STOP")) {
+                updateNodes(string);
+                currentGeneration++;
+            }
+            else {
+                executorService.shutdown();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void resetInfoLabelAfterDelay() {
@@ -394,6 +444,27 @@ public class GraphApp extends Application {
                 node.setStroke(Color.RED);
                 node.setStrokeWidth(2);
                 node.setRadius(12);
+
+                for (int i = 0; i < edges.length; i++)
+                {
+                    int nodeIndex1 = edges[i][0];
+                    int nodeIndex2 = edges[i][1];
+
+                    if (indexNode == nodeIndex1)
+                    {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.RED);
+
+                        nodes.get(nodeIndex2).setStroke(Color.RED);
+                    }
+                    else if (indexNode == nodeIndex2)
+                    {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.RED);
+
+                        nodes.get(nodeIndex1).setStroke(Color.RED);
+                    }
+                }
             }
         });
 
@@ -403,6 +474,27 @@ public class GraphApp extends Application {
                 node.setStroke(Color.BLACK);
                 node.setStrokeWidth(1);
                 node.setRadius(10);
+
+                for (int i = 0; i < edges.length; i++)
+                {
+                    int nodeIndex1 = edges[i][0];
+                    int nodeIndex2 = edges[i][1];
+
+                    if (indexNode == nodeIndex1)
+                    {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.rgb(100, 100, 100));
+
+                        nodes.get(nodeIndex2).setStroke(Color.BLACK);
+                    }
+                    else if (indexNode == nodeIndex2)
+                    {
+                        Line edge = edgesList.get(i);
+                        edge.setStroke(Color.rgb(100, 100, 100));
+
+                        nodes.get(nodeIndex1).setStroke(Color.BLACK);
+                    }
+                }
             }
         });
 
@@ -442,6 +534,9 @@ public class GraphApp extends Application {
         {
             int nodeIndex1 = edges[i][0];
             int nodeIndex2 = edges[i][1];
+
+            if (nodeColors[nodeIndex1] == nodeColors[nodeIndex2])
+                edgesList.get(i).setStroke(Color.rgb(166, 58, 22));
 
             if (indexNode == nodeIndex1)
             {
@@ -487,6 +582,10 @@ public class GraphApp extends Application {
             Color color = nodeColors[colorIndex];
             nodes.get(i).setFill(color);
             //System.out.println(split[i]);
+        }
+
+        for (int i = 0; i < instance.getNodesNo(); i++) {
+            updateEdges(nodes.get(i), i);
         }
     }
 

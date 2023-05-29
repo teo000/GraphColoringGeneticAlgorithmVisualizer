@@ -57,28 +57,30 @@ public class ProblemController {
 
     @RequestMapping("/solution/{id}/{genNo}")
     public String getState(@PathVariable long id, @PathVariable int genNo){
-        Solution solution = solutionService.findById(id);
-        Generation generation = null;
-
-        if (genNo < gen.MAX)
-        {
-            gen.alg_gen(genNo);
-            generation = gen.setBestSoFar(genNo);
-            solution.addGeneration(generation);
-            solutionService.saveSolution(solution);
-            gen.tNou++;
+        if (genNo > gen.MAX) {
+            return "STOP";
         }
-        else
-        {
-            gen.finalResult = gen.lastThatActuallyWorked + 1;
+        else {
+            Solution solution = solutionService.findById(id);
+            Generation generation = null;
 
+            if (genNo < gen.MAX) {
+                gen.alg_gen(genNo);
+                generation = gen.setBestSoFar(genNo);
+                solution.addGeneration(generation);
+                solutionService.saveSolution(solution);
+                gen.tNou++;
+            } else {
+                gen.finalResult = gen.lastThatActuallyWorked + 1;
+
+            }
+
+            //solutionRepository.save(ga.getSolution());
+
+            //        generation = solutionService.findGeneration(id, genNo);
+            if (generation == null)
+                return null;
+            return generation.getBestCandidate();
         }
-
-        //solutionRepository.save(ga.getSolution());
-
-//        generation = solutionService.findGeneration(id, genNo);
-        if (generation == null)
-            return null;
-        return generation.getBestCandidate();
     }
 }
