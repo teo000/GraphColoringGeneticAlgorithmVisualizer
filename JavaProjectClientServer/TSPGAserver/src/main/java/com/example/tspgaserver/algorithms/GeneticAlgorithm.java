@@ -132,7 +132,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
 
         tNou = 0;
         wentToFar = false;
-        solution = new Solution(this, instance, 2.0, 0.9, 100, 2000, nrNodes);
+        //solution = new Solution(this, instance, 2.0, 0.9, 100, 2000, nrNodes);
     }
 
     public void run() {
@@ -307,7 +307,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
 //            updateSolution();
     }
 
-    public void setBestSoFar(int genNo){
+    public Generation setBestSoFar(int genNo){
         System.out.println("setBestSoFar, genNo = " + genNo);
         Generation generation = new Generation(genNo);
         StringBuilder sb = new StringBuilder(candidateLength);
@@ -320,7 +320,9 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         generation.setBestCandidate(sb.toString());
         generation.setBestScore(finalResult);
 
-        solution.addGeneration(generation);
+       // solution.addGeneration(generation);
+
+        return generation;
     }
 
 }

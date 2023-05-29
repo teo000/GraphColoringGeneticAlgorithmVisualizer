@@ -47,24 +47,28 @@ public class ProblemController {
         geneticAlgorithm.initGA();
 
         gen = geneticAlgorithm;
+        Solution solution = new Solution(problem, 2.0, 0.9, 100, 2000, problem.getNodesNo());
 
-        solutionService.saveSolution(geneticAlgorithm.getSolution());
-        Solution solution = geneticAlgorithm.getSolution();
+        solutionService.saveSolution(solution);
+        //Solution solution = geneticAlgorithm.getSolution();
         //geneticAlgorithmRunner.startGA(solution);
         return solution.getId();
     }
 
     @RequestMapping("/solution/{id}/{genNo}")
     public String getState(@PathVariable long id, @PathVariable int genNo){
+        Solution solution = solutionService.findById(id);
+        Generation generation = null;
 
-        if (genNo < gen.MAX && gen.running)
+        if (genNo < gen.MAX)
         {
             gen.alg_gen(genNo);
-            gen.setBestSoFar(genNo);
-            solutionService.saveSolution(gen.getSolution());
+            generation = gen.setBestSoFar(genNo);
+            solution.addGeneration(generation);
+            solutionService.saveSolution(solution);
             gen.tNou++;
         }
-        else if (gen.running == false)
+        else
         {
             gen.finalResult = gen.lastThatActuallyWorked + 1;
 
@@ -72,7 +76,7 @@ public class ProblemController {
 
         //solutionRepository.save(ga.getSolution());
 
-        Generation generation = solutionService.findGeneration(id, genNo);
+//        generation = solutionService.findGeneration(id, genNo);
         if (generation == null)
             return null;
         return generation.getBestCandidate();

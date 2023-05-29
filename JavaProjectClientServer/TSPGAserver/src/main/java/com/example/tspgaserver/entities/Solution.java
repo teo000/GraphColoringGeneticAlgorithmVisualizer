@@ -26,9 +26,6 @@ public class Solution {
     @JoinColumn(name = "problem_id")
     private Problem problemInstance;
 
-    @Transient
-    public
-    GeneticAlgorithm geneticAlgorithm;
 
 //    @OneToMany(targetEntity = Candidate.class, cascade = CascadeType.ALL,
 //            fetch = FetchType.LAZY, orphanRemoval = true)
@@ -42,8 +39,7 @@ public class Solution {
     protected Solution() {
     }
 
-    public Solution(GeneticAlgorithm ga, Problem problemInstance, double mutationProb, double crossoverProb, int populationSize, int generationsNo, int candidateLength) {
-        this.geneticAlgorithm = ga;
+    public Solution(Problem problemInstance, double mutationProb, double crossoverProb, int populationSize, int generationsNo, int candidateLength) {
         this.mutationProb = mutationProb;
         this.crossoverProb = crossoverProb;
         this.populationSize = populationSize;
