@@ -57,6 +57,14 @@ public class Generation {
         return genNo;
     }
 
+    public int getBestScore() {
+        return bestScore;
+    }
+
+    public boolean isFinalGen() {
+        return finalGen;
+    }
+
     public String getBestCandidate() {
         return bestCandidate;
     }

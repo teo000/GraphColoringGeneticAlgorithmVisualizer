@@ -12,4 +12,5 @@ module com.example.alggencolorarefx {
     opens com.example.alggencolorarefx to javafx.fxml;
     opens com.example.alggencolorarefx.graph to com.google.gson;
     exports com.example.alggencolorarefx;
+    exports com.example.alggencolorarefx.graph;
 }
