@@ -255,7 +255,7 @@ public class GraphApp extends Application {
         loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event){
-                HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/1").asJson();
+                HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/5").asJson();
                 Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
                 resetNodesEdgesFromProblemInstance(problem);
                 graphPane.loadGraph();
@@ -305,7 +305,7 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
-                solution_id = Unirest.post("http://localhost:5000/problem/1").asObject(Long.class).getBody();
+                solution_id = Unirest.post("http://localhost:5000/problem/5").asObject(Long.class).getBody();
 //                while(apiResponse.getBody()==null)
 //                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
 //                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);

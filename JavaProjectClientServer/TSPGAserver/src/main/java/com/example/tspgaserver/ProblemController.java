@@ -25,6 +25,8 @@ public class ProblemController {
     @Autowired
     GeneticAlgorithmRunner geneticAlgorithmRunner;
 
+    GeneticAlgorithm gen;
+
     @RequestMapping("/problem/{id}")
     public Problem fetchProblem(@PathVariable long id) throws ProblemNotFoundException {
         System.out.println("hei");
@@ -44,14 +46,32 @@ public class ProblemController {
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(problem);
         geneticAlgorithm.initGA();
 
+        gen = geneticAlgorithm;
+
         solutionService.saveSolution(geneticAlgorithm.getSolution());
         Solution solution = geneticAlgorithm.getSolution();
-        geneticAlgorithmRunner.startGA(solution);
+        //geneticAlgorithmRunner.startGA(solution);
         return solution.getId();
     }
 
     @RequestMapping("/solution/{id}/{genNo}")
     public String getState(@PathVariable long id, @PathVariable int genNo){
+
+        if (genNo < gen.MAX && gen.running)
+        {
+            gen.alg_gen(genNo);
+            gen.setBestSoFar(genNo);
+            solutionService.saveSolution(gen.getSolution());
+            gen.tNou++;
+        }
+        else if (gen.running == false)
+        {
+            gen.finalResult = gen.lastThatActuallyWorked + 1;
+
+        }
+
+        //solutionRepository.save(ga.getSolution());
+
         Generation generation = solutionService.findGeneration(id, genNo);
         if (generation == null)
             return null;

@@ -22,7 +22,7 @@ public class GeneticAlgorithmRunner {
     ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public void startGA(Solution solution){
-        /*
+
         GeneticAlgorithm ga = solution.geneticAlgorithm;
         for (int t = 0; t < ga.MAX && ga.running; t++, ga.tNou++) {
             ga.alg_gen(t);
@@ -31,13 +31,13 @@ public class GeneticAlgorithmRunner {
         }
         ga.finalResult = ga.lastThatActuallyWorked + 1;
 
-        ga.updateSolution(2000);
         solutionRepository.save(ga.getSolution());
-        */
+        /*
         //executor.execute(() -> runGA(solution.geneticAlgorithm));
         executor.submit(() -> {
             runGA(solution.geneticAlgorithm);
         });
+        */
     }
     public void runGA(GeneticAlgorithm ga){
 
