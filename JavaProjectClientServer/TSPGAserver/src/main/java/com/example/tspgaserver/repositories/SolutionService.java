@@ -35,4 +35,8 @@ public class SolutionService {
             return generations.get(0);
         else return null;
     }
+
+    public Solution findById(long id){
+        return solutionRepository.findById(id).orElse(null);
+    }
 }

@@ -25,6 +25,8 @@ public class ProblemController {
     @Autowired
     GeneticAlgorithmRunner geneticAlgorithmRunner;
 
+    GeneticAlgorithm gen;
+
     @RequestMapping("/problem/{id}")
     public Problem fetchProblem(@PathVariable long id) throws ProblemNotFoundException {
         System.out.println("hei");
@@ -44,17 +46,41 @@ public class ProblemController {
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(problem);
         geneticAlgorithm.initGA();
 
-        solutionService.saveSolution(geneticAlgorithm.getSolution());
-        Solution solution = geneticAlgorithm.getSolution();
-        geneticAlgorithmRunner.startGA(solution);
+        gen = geneticAlgorithm;
+        Solution solution = new Solution(problem, 2.0, 0.9, 100, 2000, problem.getNodesNo());
+
+        solutionService.saveSolution(solution);
+        //Solution solution = geneticAlgorithm.getSolution();
+        //geneticAlgorithmRunner.startGA(solution);
         return solution.getId();
     }
 
     @RequestMapping("/solution/{id}/{genNo}")
     public String getState(@PathVariable long id, @PathVariable int genNo){
-        Generation generation = solutionService.findGeneration(id, genNo);
-        if (generation == null)
-            return null;
-        return generation.getBestCandidate();
+        if (genNo > gen.MAX) {
+            return "STOP";
+        }
+        else {
+            Solution solution = solutionService.findById(id);
+            Generation generation = null;
+
+            if (genNo < gen.MAX) {
+                gen.alg_gen(genNo);
+                generation = gen.setBestSoFar(genNo);
+                solution.addGeneration(generation);
+                solutionService.saveSolution(solution);
+                gen.tNou++;
+            } else {
+                gen.finalResult = gen.lastThatActuallyWorked + 1;
+
+            }
+
+            //solutionRepository.save(ga.getSolution());
+
+            //        generation = solutionService.findGeneration(id, genNo);
+            if (generation == null)
+                return null;
+            return generation.getBestCandidate();
+        }
     }
 }
