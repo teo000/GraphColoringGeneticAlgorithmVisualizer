@@ -5,6 +5,7 @@ import com.example.alggencolorarefx.graph.Problem;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -399,6 +400,7 @@ public class GraphApp extends Application {
             Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
             System.out.println(generation.getBestCandidate());
             infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+            Platform.runLater(() -> infoGeneticAlgLabel.setText(infoAboutGeneticAlg));
             //infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
             if (!generation.isFinalGen()) {
                 updateNodes(generation.getBestCandidate());
