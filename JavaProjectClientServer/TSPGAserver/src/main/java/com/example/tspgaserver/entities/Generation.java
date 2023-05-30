@@ -24,10 +24,10 @@ public class Generation {
     @Column(name = "final_gen")
     private boolean finalGen = false;
 
-//    @OneToMany(targetEntity = Candidate.class, cascade = CascadeType.ALL,
-//            fetch = FetchType.LAZY, orphanRemoval = true)
-//    @JoinColumn(name = "generation_id", referencedColumnName = "id")
-//    private List<Candidate> candidates = new ArrayList<>();
+    @OneToMany(targetEntity = Candidate.class, cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "generation_id", referencedColumnName = "id")
+    private List<Candidate> candidates = new ArrayList<>();
 
     protected Generation() {
 
@@ -36,9 +36,9 @@ public class Generation {
         this.genNo = genNo;
     }
 
-//    public void addCandidate(Candidate candidate){
-//        this.candidates.add(candidate);
-//    }
+    public void addCandidate(Candidate candidate){
+        this.candidates.add(candidate);
+    }
 
 //    public void setBestSoFar(Candidate bestSoFar) {
 //        this.bestSoFar = bestSoFar;
@@ -84,5 +84,9 @@ public class Generation {
     @Override
     public int hashCode() {
         return Objects.hash(id, bestCandidate, bestScore, genNo);
+    }
+
+    public List<Candidate> getCandidates() {
+        return candidates;
     }
 }

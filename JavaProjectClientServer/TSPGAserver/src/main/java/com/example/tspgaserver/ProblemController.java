@@ -101,8 +101,13 @@ public class ProblemController {
 
         ga.alg_gen(genNo);
         generation = ga.setBestSoFar(genNo);
-        solution.addGeneration(generation);
         ga.tNou++;
+
+        if(genNo % 50 == 0)
+            generation.getCandidates().addAll(ga.getAllCandidates());
+
+        solution.addGeneration(generation);
+
 
         if(genNo == ga.MAX){
             ga.finalResult = ga.lastThatActuallyWorked + 1;
@@ -157,6 +162,23 @@ public class ProblemController {
         Result result = ga.getFinalResult();
         result.setTimeMillis(System.currentTimeMillis() - startTime);
         return result;
+    }
+
+    @RequestMapping("/solution/{id}/{genNo}/load")
+    public Generation load(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
+        Solution solution = solutionService.findById(id);
+        GeneticAlgorithm ga = (GeneticAlgorithm) GAs.get(solution.getId());
+
+        if (genNo > ga.MAX) {
+            throw new GenerationNotValidException(genNo);
+        }
+        ga.tNou = genNo + 1;
+
+        Generation generation = solution.getGenerations().stream().filter(g -> g.getGenNo() == genNo).findFirst().orElse(null);
+
+        ga.updateSirCurent(generation.getCandidates());
+
+        return solution.getGenerations().stream().filter(g -> g.getGenNo() == genNo).findFirst().orElse(null);
     }
 
 

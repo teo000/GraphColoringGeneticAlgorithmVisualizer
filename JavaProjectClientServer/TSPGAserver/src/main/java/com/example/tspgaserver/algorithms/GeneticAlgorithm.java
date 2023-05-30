@@ -338,4 +338,31 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         return new Result(sb.toString(), lastThatActuallyWorked + 1);
     }
 
+    public List<Candidate> getAllCandidates(){
+        List<Candidate> allCandidates = new ArrayList<>();
+        for(int i = 0; i< population_size; i++){
+            StringBuilder sb = new StringBuilder(candidateLength);
+            for(int nodeIndex = 0; nodeIndex < candidateLength ;nodeIndex ++) {
+                sb.append(Integer.toString(sir_curent[i*candidateLength + nodeIndex]));
+                sb.append(',');
+            }
+            allCandidates.add(new Candidate(i, sb.toString()));
+        }
+        return allCandidates;
+    }
+
+    public void updateSirCurent(List<Candidate> candidates){
+
+        for(int i = 0; i< population_size; i++) {
+            String[] split = candidates.get(i).getCandidate().split(",");
+
+            for (int nodeIndex = 0; nodeIndex < candidateLength; nodeIndex++) {
+                sir_curent[i * candidateLength + nodeIndex] = Integer.parseInt(split[nodeIndex]);
+                sir_next[i * candidateLength + nodeIndex] = Integer.parseInt(split[nodeIndex]);
+            }
+        }
+
+
+    }
+
 }

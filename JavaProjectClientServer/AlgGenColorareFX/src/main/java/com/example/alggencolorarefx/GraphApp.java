@@ -24,6 +24,7 @@ import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import kong.unirest.GenericType;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -479,6 +480,16 @@ public class GraphApp extends Application {
                     int number = Integer.parseInt(inputText);
                     if (number % 50 == 0) {
                         infoLabel.setText("Go to button clicked: " + number);
+
+                        Generation generation = ServerRequests.loadGeneration(solution_id, number);
+                        currentGeneration = number;
+
+                        infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+                        infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
+
+                        System.out.println(generation.getBestCandidate());
+                        updateNodes(generation.getBestCandidate());
+
                         resetInfoLabelAfterDelay();
                     } else {
                         infoLabel.setText("Please enter a number divisible by 50");
@@ -623,6 +634,7 @@ public class GraphApp extends Application {
             }
             Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration, algorithmType);
             System.out.println(generation.getBestCandidate());
+            System.out.println(generation.getCandidates());
             infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
             Platform.runLater(() -> infoGeneticAlgLabel.setText(infoAboutGeneticAlg));
             //infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
