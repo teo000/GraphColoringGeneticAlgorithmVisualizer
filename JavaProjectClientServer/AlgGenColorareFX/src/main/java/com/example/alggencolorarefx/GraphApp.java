@@ -333,7 +333,10 @@ public class GraphApp extends Application {
             startComparisonButton.setVisible(false);
         }
     }
-
+    ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
+            //"myciel5", "myciel6", "Option 3", "Option 4")
+            problemNames)
+    );
     private HBox createNavBar() {
         HBox navbar = new HBox(10);
         navbar.setPadding(new Insets(10));
@@ -372,14 +375,26 @@ public class GraphApp extends Application {
                 resetInfoLabelAfterDelay();
                 if (filePath.compareTo("none") != 0)
                     resetNodesEdgesFromFile(filePath);
+<<<<<<< Updated upstream
+=======
+                    instance = new Problem(fileName, filePath);
+                    ServerRequests.addProblemInstance(instance);
+                    chosenProblem = instance.getName();
+                    problemNames.add(chosenProblem);
+                    selectDropdown.setItems(FXCollections.observableArrayList(
+                            problemNames)
+                    );
+                   // System.out.println(instance);
+                }
+>>>>>>> Stashed changes
                 graphPane.loadGraph();
             }
         });
 
-        ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
-                //"myciel5", "myciel6", "Option 3", "Option 4")
-                problemNames)
-        );
+//        ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
+//                //"myciel5", "myciel6", "Option 3", "Option 4")
+//                problemNames)
+//        );
         selectDropdown.setPromptText("Choose problem");
 
         Button loadProblem1 = new Button("Load problem");
