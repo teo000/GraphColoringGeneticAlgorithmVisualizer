@@ -39,6 +39,9 @@ CREATE TABLE solutions(
 			REFERENCES problem_instances(id)
 );
 
+ALTER TABLE solutions ADD COLUMN overall_best_candidate TEXT;
+ALTER TABLE solutions ADD COLUMN overall_best_score INT;
+
 CREATE TABLE generations(
 	id SERIAL PRIMARY KEY,
 	solution_id int,
@@ -51,7 +54,10 @@ CREATE TABLE generations(
 -- 			REFERENCES candidates(id)
 );
 delete from generations;
-alter table generations alter column best_candidate type text;
+
+alter table generations add column final_gen boolean;
+alter table generations alter column final_gen set default false
+
 
 
 -- alter table generations

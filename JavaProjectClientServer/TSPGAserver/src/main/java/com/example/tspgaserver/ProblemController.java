@@ -3,6 +3,7 @@ package com.example.tspgaserver;
 import com.example.tspgaserver.algorithms.GeneticAlgorithm;
 import com.example.tspgaserver.entities.Generation;
 import com.example.tspgaserver.entities.Problem;
+import com.example.tspgaserver.entities.Result;
 import com.example.tspgaserver.entities.Solution;
 import com.example.tspgaserver.exceptions.GenerationNotValidException;
 import com.example.tspgaserver.exceptions.ProblemNotFoundException;
@@ -28,19 +29,26 @@ public class ProblemController {
     Map<Long, GeneticAlgorithm> GAs = new HashMap<>();
     GeneticAlgorithm gen;
 
-    @RequestMapping("/problem/{id}")
-    public Problem fetchProblem(@PathVariable long id) throws ProblemNotFoundException {
+
+    @RequestMapping("/problem/{name}")
+    public Problem fetchProblem(@PathVariable String name) throws ProblemNotFoundException {
         System.out.println("hei");
-        Problem problem = problemService.findById(id);
+        Problem problem = problemService.findByName(name);
         if(problem == null)
             throw new ProblemNotFoundException();
         return problem;
     }
 
-    @PostMapping("/problem/{id}")
-    public long startAlg(@PathVariable long id) throws ProblemNotFoundException {
+    @RequestMapping("/problem")
+    public List<String> fetchProblemList() throws ProblemNotFoundException {
+        System.out.println("heihei");
+        return problemService.findAll().stream().map(Problem::getName).toList();
+    }
+
+    @PostMapping("/problem/{name}")
+    public long startAlg(@PathVariable String name) throws ProblemNotFoundException {
         System.out.println("start Alg");
-        Problem problem = problemService.findById(id);
+        Problem problem = problemService.findByName(name);
         if(problem == null)
             throw new ProblemNotFoundException();
 
@@ -82,35 +90,25 @@ public class ProblemController {
         solutionService.saveSolution(solution);
 
         return generation;
-
-
-//        if (genNo > ga.MAX) {
-//            return "STOP";
-//        }
-//        else {
-//            Generation generation = null;
-//
-//            if (genNo < ga.MAX) {
-//                ga.alg_gen(genNo);
-//                generation = ga.setBestSoFar(genNo);
-//                solution.addGeneration(generation);
-//                solutionService.saveSolution(solution);
-//                ga.tNou++;
-//            } else {
-//                ga.finalResult = ga.lastThatActuallyWorked + 1;
-//
-//            }
-//
-//            if (generation == null)
-//                return null;
-//            return generation.getBestCandidate();
-//        }
-
     }
 
-//    @RequestMapping("/problem/{id}/getResult")
-//    public String getFast(@PathVariable long id){
-//
-//    }
+    @RequestMapping("/problem/{name}/getResult")
+    public Result getFast(@PathVariable String name) throws ProblemNotFoundException {
+        Problem problem = problemService.findByName(name);
+        if(problem == null)
+            throw new ProblemNotFoundException();
+
+        long startTime = System.currentTimeMillis();
+
+        GeneticAlgorithm ga = new GeneticAlgorithm(problem);
+        ga.initGA();
+
+        for (int t = 0; t < ga.MAX && ga.running; t++, ga.tNou++)
+            ga.alg_gen(t);
+
+        Result result = ga.getFinalResult();
+        result.setTimeMillis(System.currentTimeMillis() - startTime);
+        return result;
+    }
 
 }

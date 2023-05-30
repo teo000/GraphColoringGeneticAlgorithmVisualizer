@@ -19,4 +19,7 @@ public class ProblemService {
     public Problem findById(long id){
         return problemRepository.findById(id).orElse(null);
     }
+    public List<Problem> findAll(){return problemRepository.findAll();}
+    public Problem findByName(String name){
+        return problemRepository.findByName(name);}
 }

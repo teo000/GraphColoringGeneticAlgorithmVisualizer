@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.WeakHashMap;
 
 public class GeneticAlgorithm extends GraphColoringAlgorithm {
 
@@ -319,11 +320,22 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         }
 
         generation.setBestCandidate(sb.toString());
-        generation.setBestScore(lastThatActuallyWorked);
+        generation.setBestScore(lastThatActuallyWorked + 1);
 
        // solution.addGeneration(generation);
 
         return generation;
+    }
+
+    public Result getFinalResult(){
+        StringBuilder sb = new StringBuilder(candidateLength);
+
+        for(int nodeIndex = 0; nodeIndex < candidateLength ;nodeIndex ++) {
+            sb.append(Integer.toString(sir_best[nodeIndex]));
+            sb.append(',');
+        }
+
+        return new Result(sb.toString(), lastThatActuallyWorked + 1);
     }
 
 }

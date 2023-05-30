@@ -2,6 +2,7 @@ package com.example.alggencolorarefx;
 
 import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
+import com.example.alggencolorarefx.graph.Result;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -181,6 +182,8 @@ public class GraphApp extends Application {
 
     private ScheduledExecutorService executorService;
 
+    private List<String> problemNames = new ArrayList<>();
+
     @Override
     public void init() {
         executorService = Executors.newSingleThreadScheduledExecutor();
@@ -191,6 +194,8 @@ public class GraphApp extends Application {
 
         BorderPane root = new BorderPane();
         //root.setPadding(new Insets(10));
+        problemNames = ServerRequests.getProblemNames();
+        System.out.println(problemNames);
 
         graphPane = new GraphPane();
         HBox topNavBar = createNavBar();
@@ -201,6 +206,7 @@ public class GraphApp extends Application {
         root.setBottom(bottomNavBar);
 
         //root.setBottom(bottomNavBar);
+
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
         scene.getStylesheets().add(getClass().getResource("styles.css").toString()); // Load external CSS file
@@ -371,7 +377,8 @@ public class GraphApp extends Application {
         });
 
         ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
-                "5", "6", "Option 3", "Option 4")
+                //"myciel5", "myciel6", "Option 3", "Option 4")
+                problemNames)
         );
         selectDropdown.setPromptText("Choose problem");
 
@@ -379,12 +386,11 @@ public class GraphApp extends Application {
         loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event){
-                Problem problem = ServerRequests.getProblemInstance(1);
-                resetNodesEdgesFromProblemInstance(problem);
-                graphPane.loadGraph();
-                instance = problem;
-                System.out.println(problem);
-  /*
+//                resetNodesEdgesFromProblemInstance(problem);
+//                graphPane.loadGraph();
+//                instance = problem;
+//                System.out.println(problem);
+
                 if (selectDropdown.getValue() != null) {
                     String value = selectDropdown.getValue();
                     chosenProblem = value;
@@ -392,18 +398,21 @@ public class GraphApp extends Application {
                     infoLabel.setText("Loading problem " + value);
                     resetInfoLabelAfterDelay();
 
-                    HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/" + value).asJson();
-                    Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
+                    Problem problem = ServerRequests.getProblemInstance(value);
+
+                    //HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/" + value).asJson();
+                   // Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
                     resetNodesEdgesFromProblemInstance(problem);
                     graphPane.loadGraph();
                     instance = problem;
                     System.out.println(problem);
+                    currentGeneration = 0;
                 }
                 else {
                     infoLabel.setText("You have to choose a problem first!");
                     resetInfoLabelAfterDelay();
                 }
-                */
+
             }
         });
 
@@ -448,9 +457,9 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
-                solution_id = ServerRequests.startNewGeneticAlgorithm(1);
+                solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem);
 
-                //solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
+//                solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
 //                while(apiResponse.getBody()==null)
 //                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
 //                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);
@@ -472,7 +481,7 @@ public class GraphApp extends Application {
                 // Perform action for Start button
                 infoLabel.setText("startAutomat Button clicked");
                 if (currentGeneration == 0) {
-                    solution_id = ServerRequests.startNewGeneticAlgorithm(1);
+                    solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem);
                  //   solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
                 }
 
@@ -526,6 +535,14 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
 
                 infoLabel.setText("Get Fast button clicked");
+                Result result = ServerRequests.getFastResult(chosenProblem);
+                System.out.println(result);
+
+                infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors: " + result.getFinalResult()
+                        + " Execution time: " + result.getTimeAsSeconds();
+                infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
+
+                updateNodes(result.getFinalCandidate());
 
                 resetInfoLabelAfterDelay();
             }

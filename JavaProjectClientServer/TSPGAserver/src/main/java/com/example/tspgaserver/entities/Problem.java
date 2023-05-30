@@ -6,9 +6,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "problem_instances")
-@NamedQueries({
-        @NamedQuery(name = "Problem.findByName",
-                query = "SELECT p FROM Problem p WHERE p.name=:name")})
 public class Problem {
     @Id
     @Column(name = "id", nullable = false)
