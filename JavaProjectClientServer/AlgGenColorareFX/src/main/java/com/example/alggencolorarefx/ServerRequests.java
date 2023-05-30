@@ -27,7 +27,7 @@ public class ServerRequests {
 
     public static long startNewGeneticAlgorithm(String problem) {
        // return Unirest.post("http://localhost:5000/problem/1").asObject(Long.class).getBody();
-        return Unirest.post("http://localhost:5000/problem/" + problem).asObject(Long.class).getBody();
+        return Unirest.post("http://localhost:5000/problem/" + problem + "/start").asObject(Long.class).getBody();
     }
 
     public static Generation getNextGeneration(long solution_id, int currentGeneration){

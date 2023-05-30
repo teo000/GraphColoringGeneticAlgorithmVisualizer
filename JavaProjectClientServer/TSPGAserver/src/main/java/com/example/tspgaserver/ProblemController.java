@@ -45,7 +45,7 @@ public class ProblemController {
         return problemService.findAll().stream().map(Problem::getName).toList();
     }
 
-    @PostMapping("/problem/{name}")
+    @PostMapping("/problem/{name}/start")
     public long startAlg(@PathVariable String name) throws ProblemNotFoundException {
         System.out.println("start Alg");
         Problem problem = problemService.findByName(name);
@@ -64,6 +64,8 @@ public class ProblemController {
         //geneticAlgorithmRunner.startGA(solution);
         return solution.getId();
     }
+
+
 
     @RequestMapping("/solution/{id}/{genNo}")
     public Generation getState(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
