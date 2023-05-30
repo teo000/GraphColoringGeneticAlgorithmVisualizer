@@ -1,6 +1,8 @@
 package com.example.tspgaserver;
 
 import com.example.tspgaserver.algorithms.GeneticAlgorithm;
+import com.example.tspgaserver.algorithms.GraphColoringAlgorithm;
+import com.example.tspgaserver.algorithms.SimulatedAnnealing;
 import com.example.tspgaserver.entities.Generation;
 import com.example.tspgaserver.entities.Problem;
 import com.example.tspgaserver.entities.Result;
@@ -23,7 +25,7 @@ public class ProblemController {
     ProblemService problemService;
     @Autowired
     SolutionService solutionService;
-    Map<Long, GeneticAlgorithm> GAs = new HashMap<>();
+    Map<Long, GraphColoringAlgorithm> GAs = new HashMap<>();
     GeneticAlgorithm gen;
 
 
@@ -67,12 +69,30 @@ public class ProblemController {
         return solution.getId();
     }
 
+    @PostMapping("/problem/{name}/start/SA")
+    public long startAlgSA(@PathVariable String name) throws ProblemNotFoundException {
+        System.out.println("start Alg SA");
+        Problem problem = problemService.findByName(name);
+        if(problem == null)
+            throw new ProblemNotFoundException();
+
+        SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(problem);
+        simulatedAnnealing.initGA();
+        Solution solution = new Solution(problem, 2.0, 0.9, 100, 2000, problem.getNodesNo());
+
+
+        solutionService.saveSolution(solution);
+        GAs.put(solution.getId(), simulatedAnnealing);
+
+        return solution.getId();
+    }
+
 
 
     @RequestMapping("/solution/{id}/{genNo}")
     public Generation getState(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
         Solution solution = solutionService.findById(id);
-        GeneticAlgorithm ga = GAs.get(solution.getId());
+        GeneticAlgorithm ga = (GeneticAlgorithm)GAs.get(solution.getId());
 
         if (genNo > ga.MAX) {
             throw new GenerationNotValidException(genNo);
@@ -92,6 +112,30 @@ public class ProblemController {
         if(genNo == ga.MAX){
             ga.finalResult = ga.lastThatActuallyWorked + 1;
             solution.setOverallBestScore(ga.finalResult);
+            solution.setOverallBestCandidate(generation.getBestCandidate());
+            generation.setFinalGen(true);
+        }
+
+        solutionService.saveSolution(solution);
+
+        return generation;
+    }
+
+    @RequestMapping("/solution/{id}/{genNo}/SA")
+    public Generation getStateSA(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
+        Solution solution = solutionService.findById(id);
+        SimulatedAnnealing sa = (SimulatedAnnealing) GAs.get(solution.getId());
+
+        Generation generation = null;
+
+        sa.run(genNo);
+
+        generation = sa.setBestSoFar(genNo);
+        solution.addGeneration(generation);
+
+        if(sa.T <= 0.00001){
+            sa.finalResult = sa.best;
+            solution.setOverallBestScore(sa.finalResult);
             solution.setOverallBestCandidate(generation.getBestCandidate());
             generation.setFinalGen(true);
         }
@@ -136,5 +180,27 @@ public class ProblemController {
 
         return solution.getGenerations().stream().filter(g -> g.getGenNo() == genNo).findFirst().orElse(null);
     }
+
+
+    @RequestMapping("/problem/{name}/getResult/SA")
+    public Result getFastSA(@PathVariable String name) throws ProblemNotFoundException {
+        Problem problem = problemService.findByName(name);
+        if(problem == null)
+            throw new ProblemNotFoundException();
+
+        long startTime = System.currentTimeMillis();
+
+        SimulatedAnnealing sa = new SimulatedAnnealing(problem);
+        sa.initGA();
+
+        for (int t = 0; sa.T > 0.00001; t++)
+            sa.run(t);
+
+        Result result = sa.getFinalResult();
+        result.setTimeMillis(System.currentTimeMillis() - startTime);
+        return result;
+    }
+
+
 
 }
