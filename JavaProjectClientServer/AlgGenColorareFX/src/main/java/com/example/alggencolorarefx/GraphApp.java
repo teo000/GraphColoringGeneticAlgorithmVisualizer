@@ -337,6 +337,11 @@ public class GraphApp extends Application {
             //"myciel5", "myciel6", "Option 3", "Option 4")
             problemNames)
     );
+
+    ComboBox<String> chooseAlgorithmDropdwon = new ComboBox<>(FXCollections.observableArrayList(
+            "Genetic Algorithm", "Simulated Annealing")
+    );
+
     private HBox createNavBar() {
         HBox navbar = new HBox(10);
         navbar.setPadding(new Insets(10));
@@ -384,7 +389,12 @@ public class GraphApp extends Application {
                    // resetNodesEdgesFromFile(filePath);
                     instance = new Problem(fileName, filePath);
                     resetNodesEdgesFromProblemInstance(instance);
-                    ServerRequests.addProblemInstance(instance);
+                    String algorithmType = "";
+                    if (chooseAlgorithmDropdwon.getValue() != null) {
+                        if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                            algorithmType = "/SA";
+                    }
+                    ServerRequests.addProblemInstance(instance, algorithmType);
                     chosenProblem = instance.getName();
                     problemNames.add(chosenProblem);
                     currentGeneration = 0;
@@ -403,6 +413,8 @@ public class GraphApp extends Application {
 //                problemNames)
 //        );
         selectDropdown.setPromptText("Choose problem");
+        chooseAlgorithmDropdwon.setPromptText("Choose algorithm");
+
 
         Button loadProblem1 = new Button("Load problem");
         loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
@@ -420,7 +432,13 @@ public class GraphApp extends Application {
                     infoLabel.setText("Loading problem " + value);
                     resetInfoLabelAfterDelay();
 
-                    Problem problem = ServerRequests.getProblemInstance(value);
+                    String algorithmType = "";
+                    if (chooseAlgorithmDropdwon.getValue() != null) {
+                        if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                            algorithmType = "/SA";
+                    }
+
+                    Problem problem = ServerRequests.getProblemInstance(value, algorithmType);
 
                     //HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/" + value).asJson();
                    // Problem problem = new Gson().fromJson(apiResponse.getBody().toString(), Problem.class);
@@ -479,12 +497,12 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
-                solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem);
-
-//                solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
-//                while(apiResponse.getBody()==null)
-//                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
-//                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);
+                String algorithmType = "";
+                if (chooseAlgorithmDropdwon.getValue() != null) {
+                    if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                        algorithmType = "/SA";
+                }
+                solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem, algorithmType);
                 System.out.println(solution_id);
 
                 try {
@@ -503,8 +521,12 @@ public class GraphApp extends Application {
                 // Perform action for Start button
                 infoLabel.setText("startAutomat Button clicked");
                 if (currentGeneration == 0) {
-                    solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem);
-                 //   solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
+                    String algorithmType = "";
+                    if (chooseAlgorithmDropdwon.getValue() != null) {
+                        if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                            algorithmType = "/SA";
+                    }
+                    solution_id = ServerRequests.startNewGeneticAlgorithm(chosenProblem, algorithmType);
                 }
 
                 System.out.println(solution_id);
@@ -538,7 +560,12 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
 
                     //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
-                    Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
+                    String algorithmType = "";
+                    if (chooseAlgorithmDropdwon.getValue() != null) {
+                        if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                            algorithmType = "/SA";
+                    }
+                    Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration, algorithmType);
                     infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
                     infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
 
@@ -557,7 +584,12 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
 
                 infoLabel.setText("Get Fast button clicked");
-                Result result = ServerRequests.getFastResult(chosenProblem);
+                String algorithmType = "";
+                if (chooseAlgorithmDropdwon.getValue() != null) {
+                    if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                        algorithmType = "/SA";
+                }
+                Result result = ServerRequests.getFastResult(chosenProblem, algorithmType);
                 System.out.println(result);
 
                 infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors: " + result.getFinalResult()
@@ -571,19 +603,25 @@ public class GraphApp extends Application {
         });
 
 
-        navbar.getChildren().addAll(loadButton, selectDropdown, loadProblem1, inputButton, goToTextField, goToButton, startButton, startAutomatButton, pauseButton, updateButton, getFastButton);
+
+        navbar.getChildren().addAll(loadButton, chooseAlgorithmDropdwon, selectDropdown, loadProblem1, inputButton, goToTextField, goToButton, startButton, startAutomatButton, pauseButton, updateButton, getFastButton);
         return navbar;
     }
 
     private void startFetchingData() {
         executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::fetchDataFromServer, 0, 10, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(this::fetchDataFromServer, 0, 20, TimeUnit.MILLISECONDS);
     }
 
     private void fetchDataFromServer() {
         try {
             //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
-            Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
+            String algorithmType = "";
+            if (chooseAlgorithmDropdwon.getValue() != null) {
+                if (chooseAlgorithmDropdwon.getValue() == "Simulated Annealing")
+                    algorithmType = "/SA";
+            }
+            Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration, algorithmType);
             System.out.println(generation.getBestCandidate());
             infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
             Platform.runLater(() -> infoGeneticAlgLabel.setText(infoAboutGeneticAlg));
