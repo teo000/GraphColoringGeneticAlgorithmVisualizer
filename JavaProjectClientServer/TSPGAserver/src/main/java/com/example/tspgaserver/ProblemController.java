@@ -11,10 +11,7 @@ import com.example.tspgaserver.repositories.ProblemService;
 import com.example.tspgaserver.repositories.SolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +40,11 @@ public class ProblemController {
     public List<String> fetchProblemList() throws ProblemNotFoundException {
         System.out.println("heihei");
         return problemService.findAll().stream().map(Problem::getName).toList();
+    }
+    @PostMapping(value = "/problem", consumes = "application/json")
+    public Problem addProblemTodDB(@RequestBody Problem problem){
+        System.out.println(problem);
+        return problemService.saveInstance(problem);
     }
 
     @PostMapping("/problem/{name}/start")

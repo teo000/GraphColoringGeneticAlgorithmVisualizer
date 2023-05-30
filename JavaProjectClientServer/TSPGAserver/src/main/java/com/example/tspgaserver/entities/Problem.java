@@ -8,6 +8,7 @@ import java.util.List;
 @Table(name = "problem_instances")
 public class Problem {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
     private String name;

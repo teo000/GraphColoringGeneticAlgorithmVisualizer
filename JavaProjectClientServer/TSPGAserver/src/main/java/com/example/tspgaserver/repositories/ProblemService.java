@@ -16,6 +16,7 @@ public class ProblemService {
     @Autowired
     ProblemRepository problemRepository;
 
+    public Problem saveInstance(Problem problem){return problemRepository.save(problem);}
     public Problem findById(long id){
         return problemRepository.findById(id).orElse(null);
     }

@@ -347,6 +347,10 @@ public class GraphApp extends Application {
 
         Button loadButton = new Button("Load from file");
 
+        selectDropdown.setItems(FXCollections.observableArrayList(
+                problemNames)
+        );
+
         loadButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -363,30 +367,33 @@ public class GraphApp extends Application {
 
                 // Show the file chooser dialog
                 File selectedFile = fileChooser.showOpenDialog(null);
+                String fileName = null;
 
                 if (selectedFile != null) {
                     filePath = selectedFile.getAbsolutePath();
+                    fileName = selectedFile.getName();
                     System.out.println(filePath);
                     infoLabel.setText("Selected file: " + filePath);
+
                 } else {
                     infoLabel.setText("No file selected");
                 }
 
                 resetInfoLabelAfterDelay();
-                if (filePath.compareTo("none") != 0)
-                    resetNodesEdgesFromFile(filePath);
-<<<<<<< Updated upstream
-=======
+                if (filePath.compareTo("none") != 0) {
+                   // resetNodesEdgesFromFile(filePath);
                     instance = new Problem(fileName, filePath);
+                    resetNodesEdgesFromProblemInstance(instance);
                     ServerRequests.addProblemInstance(instance);
                     chosenProblem = instance.getName();
                     problemNames.add(chosenProblem);
+                    currentGeneration = 0;
+
                     selectDropdown.setItems(FXCollections.observableArrayList(
                             problemNames)
                     );
-                   // System.out.println(instance);
+                    // System.out.println(instance);
                 }
->>>>>>> Stashed changes
                 graphPane.loadGraph();
             }
         });

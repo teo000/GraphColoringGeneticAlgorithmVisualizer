@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "edges")
-@IdClass(EdgePk.class)
+//@IdClass(EdgePk.class)
 public class Edge {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    //@Id
     @Column (name = "problem_id")
     private Long problemId;
-    @Id
+    //@Id
     @Column(name = "edge_no")
     public int edgeNo;
     public int node1;

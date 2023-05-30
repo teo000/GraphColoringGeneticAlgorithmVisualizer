@@ -19,6 +19,13 @@ public class ServerRequests {
                 .asObject(new GenericType<List<String>>(){})
                 .getBody();
     }
+
+    public static void addProblemInstance(Problem problem){
+        HttpResponse<JsonNode> response = Unirest.post("http://localhost:5000/problem")
+                .header("Content-Type", "application/json")
+                .body(problem)
+                .asJson();
+    }
     public static Problem getProblemInstance(String problem){
         HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/"+problem).asJson();
         //HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/1").asJson();
