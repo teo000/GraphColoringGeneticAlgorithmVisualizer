@@ -4,6 +4,7 @@ import com.example.tspgaserver.algorithms.GeneticAlgorithm;
 import com.example.tspgaserver.entities.Generation;
 import com.example.tspgaserver.entities.Problem;
 import com.example.tspgaserver.entities.Solution;
+import com.example.tspgaserver.exceptions.GenerationNotValidException;
 import com.example.tspgaserver.exceptions.ProblemNotFoundException;
 import com.example.tspgaserver.repositories.ProblemService;
 import com.example.tspgaserver.repositories.SolutionService;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ProblemController {
@@ -22,9 +25,7 @@ public class ProblemController {
     ProblemService problemService;
     @Autowired
     SolutionService solutionService;
-    @Autowired
-    GeneticAlgorithmRunner geneticAlgorithmRunner;
-
+    Map<Long, GeneticAlgorithm> GAs = new HashMap<>();
     GeneticAlgorithm gen;
 
     @RequestMapping("/problem/{id}")
@@ -45,42 +46,71 @@ public class ProblemController {
 
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(problem);
         geneticAlgorithm.initGA();
-
-        gen = geneticAlgorithm;
         Solution solution = new Solution(problem, 2.0, 0.9, 100, 2000, problem.getNodesNo());
 
+
         solutionService.saveSolution(solution);
+        GAs.put(solution.getId(), geneticAlgorithm);
+
         //Solution solution = geneticAlgorithm.getSolution();
         //geneticAlgorithmRunner.startGA(solution);
         return solution.getId();
     }
 
     @RequestMapping("/solution/{id}/{genNo}")
-    public String getState(@PathVariable long id, @PathVariable int genNo){
-        if (genNo > gen.MAX) {
-            return "STOP";
+    public Generation getState(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
+        Solution solution = solutionService.findById(id);
+        GeneticAlgorithm ga = GAs.get(solution.getId());
+
+        if (genNo > ga.MAX) {
+            throw new GenerationNotValidException(genNo);
         }
-        else {
-            Solution solution = solutionService.findById(id);
-            Generation generation = null;
+        Generation generation = null;
 
-            if (genNo < gen.MAX) {
-                gen.alg_gen(genNo);
-                generation = gen.setBestSoFar(genNo);
-                solution.addGeneration(generation);
-                solutionService.saveSolution(solution);
-                gen.tNou++;
-            } else {
-                gen.finalResult = gen.lastThatActuallyWorked + 1;
+        ga.alg_gen(genNo);
+        generation = ga.setBestSoFar(genNo);
+        solution.addGeneration(generation);
+        ga.tNou++;
 
-            }
-
-            //solutionRepository.save(ga.getSolution());
-
-            //        generation = solutionService.findGeneration(id, genNo);
-            if (generation == null)
-                return null;
-            return generation.getBestCandidate();
+        if(genNo == ga.MAX){
+            ga.finalResult = ga.lastThatActuallyWorked + 1;
+            solution.setOverallBestScore(ga.finalResult);
+            solution.setOverallBestCandidate(generation.getBestCandidate());
+            generation.setFinalGen(true);
         }
+
+        solutionService.saveSolution(solution);
+
+        return generation;
+
+
+//        if (genNo > ga.MAX) {
+//            return "STOP";
+//        }
+//        else {
+//            Generation generation = null;
+//
+//            if (genNo < ga.MAX) {
+//                ga.alg_gen(genNo);
+//                generation = ga.setBestSoFar(genNo);
+//                solution.addGeneration(generation);
+//                solutionService.saveSolution(solution);
+//                ga.tNou++;
+//            } else {
+//                ga.finalResult = ga.lastThatActuallyWorked + 1;
+//
+//            }
+//
+//            if (generation == null)
+//                return null;
+//            return generation.getBestCandidate();
+//        }
+
     }
+
+//    @RequestMapping("/problem/{id}/getResult")
+//    public String getFast(@PathVariable long id){
+//
+//    }
+
 }

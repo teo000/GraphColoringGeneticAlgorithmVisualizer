@@ -1,9 +1,11 @@
 package com.example.alggencolorarefx;
 
+import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -377,6 +379,12 @@ public class GraphApp extends Application {
         loadProblem1.setOnAction (new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event){
+                Problem problem = ServerRequests.getProblemInstance(1);
+                resetNodesEdgesFromProblemInstance(problem);
+                graphPane.loadGraph();
+                instance = problem;
+                System.out.println(problem);
+  /*
                 if (selectDropdown.getValue() != null) {
                     String value = selectDropdown.getValue();
                     chosenProblem = value;
@@ -395,6 +403,7 @@ public class GraphApp extends Application {
                     infoLabel.setText("You have to choose a problem first!");
                     resetInfoLabelAfterDelay();
                 }
+                */
             }
         });
 
@@ -439,7 +448,9 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
                 // Perform action for Start button
                 infoLabel.setText("Start button clicked");
-                solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
+                solution_id = ServerRequests.startNewGeneticAlgorithm(1);
+
+                //solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
 //                while(apiResponse.getBody()==null)
 //                    apiResponse = Unirest.post("http://localhost:5000/problem/1").asJson();
 //                solution_id = new Gson().fromJson(apiResponse.getBody().toString(), Long.class);
@@ -461,7 +472,8 @@ public class GraphApp extends Application {
                 // Perform action for Start button
                 infoLabel.setText("startAutomat Button clicked");
                 if (currentGeneration == 0) {
-                    solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
+                    solution_id = ServerRequests.startNewGeneticAlgorithm(1);
+                 //   solution_id = Unirest.post("http://localhost:5000/problem/" + chosenProblem).asObject(Long.class).getBody();
                 }
 
                 System.out.println(solution_id);
@@ -494,11 +506,14 @@ public class GraphApp extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                    String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
+                    //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
+                    Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
+                    infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+                    infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
 
-                    System.out.println(string);
+                    System.out.println(generation.getBestCandidate());
                     infoLabel.setText("Update button clicked");
-                    updateNodes(string);
+                    updateNodes(generation.getBestCandidate());
                     currentGeneration++;
 
                 resetInfoLabelAfterDelay();
@@ -528,10 +543,14 @@ public class GraphApp extends Application {
 
     private void fetchDataFromServer() {
         try {
-            String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
-            System.out.println(string);
-            if (!string.equals("STOP")) {
-                updateNodes(string);
+            //String string = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asString().getBody();
+            Generation generation = ServerRequests.getNextGeneration(solution_id, currentGeneration);
+            System.out.println(generation.getBestCandidate());
+            infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors so far:" + generation.getBestScore();
+            Platform.runLater(() -> infoGeneticAlgLabel.setText(infoAboutGeneticAlg));
+            //infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
+            if (!generation.isFinalGen()) {
+                updateNodes(generation.getBestCandidate());
                 currentGeneration++;
             }
             else {
