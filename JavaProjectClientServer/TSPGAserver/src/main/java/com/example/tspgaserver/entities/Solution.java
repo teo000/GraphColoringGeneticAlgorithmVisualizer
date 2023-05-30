@@ -58,6 +58,10 @@ public class Solution {
         return id;
     }
 
+    public List<Generation> getGenerations() {
+        return generations;
+    }
+
     public int getGenerationsNo() {
         return generationsNo;
     }

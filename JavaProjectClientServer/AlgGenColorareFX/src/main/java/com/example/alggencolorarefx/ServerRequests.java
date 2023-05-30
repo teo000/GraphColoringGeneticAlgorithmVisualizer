@@ -1,5 +1,6 @@
 package com.example.alggencolorarefx;
 
+import com.example.alggencolorarefx.graph.Candidate;
 import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
 import com.example.alggencolorarefx.graph.Result;
@@ -45,5 +46,10 @@ public class ServerRequests {
     public static Result getFastResult(String problemName){
         HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/"+problemName +"/getResult").asJson();
         return new Gson().fromJson(apiResponse.getBody().toString(), Result.class);
+    }
+
+    public static Generation loadGeneration(long solution_id, int genNo){
+        HttpResponse<JsonNode> apiResponse =  Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + genNo + "/load").asJson();
+        return new Gson().fromJson(apiResponse.getBody().toString(), Generation.class);
     }
 }
