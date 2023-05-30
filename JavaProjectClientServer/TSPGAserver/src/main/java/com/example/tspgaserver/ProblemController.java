@@ -167,7 +167,7 @@ public class ProblemController {
     @RequestMapping("/solution/{id}/{genNo}/load")
     public Generation load(@PathVariable long id, @PathVariable int genNo) throws GenerationNotValidException {
         Solution solution = solutionService.findById(id);
-        GeneticAlgorithm ga = GAs.get(solution.getId());
+        GeneticAlgorithm ga = (GeneticAlgorithm) GAs.get(solution.getId());
 
         if (genNo > ga.MAX) {
             throw new GenerationNotValidException(genNo);
