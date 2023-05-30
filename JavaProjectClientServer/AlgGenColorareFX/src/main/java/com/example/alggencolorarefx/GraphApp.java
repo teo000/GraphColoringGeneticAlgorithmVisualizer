@@ -181,6 +181,8 @@ public class GraphApp extends Application {
 
     private ScheduledExecutorService executorService;
 
+    private List<String> problemNames = new ArrayList<>();
+
     @Override
     public void init() {
         executorService = Executors.newSingleThreadScheduledExecutor();
@@ -191,6 +193,8 @@ public class GraphApp extends Application {
 
         BorderPane root = new BorderPane();
         //root.setPadding(new Insets(10));
+        problemNames = ServerRequests.getProblemNames();
+        System.out.println(problemNames);
 
         graphPane = new GraphPane();
         HBox topNavBar = createNavBar();
@@ -201,6 +205,7 @@ public class GraphApp extends Application {
         root.setBottom(bottomNavBar);
 
         //root.setBottom(bottomNavBar);
+
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
         scene.getStylesheets().add(getClass().getResource("styles.css").toString()); // Load external CSS file
@@ -371,7 +376,8 @@ public class GraphApp extends Application {
         });
 
         ComboBox<String> selectDropdown = new ComboBox<>(FXCollections.observableArrayList(
-                "myciel5", "myciel6", "Option 3", "Option 4")
+                //"myciel5", "myciel6", "Option 3", "Option 4")
+                problemNames)
         );
         selectDropdown.setPromptText("Choose problem");
 

@@ -3,11 +3,21 @@ package com.example.alggencolorarefx;
 import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
 import com.google.gson.Gson;
+import kong.unirest.GenericType;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 
+import java.util.List;
+
 public class ServerRequests {
+    public static List<String> getProblemNames(){
+        //HttpResponse<String[]> apiResponse = Unirest.get("http://localhost:5000/problem").asObject(List.class);
+        //HttpResponse<Item[]> itemResponse = Unirest.get("http://localhost:8080/item").asObject(Item[].class);
+        return Unirest.get("http://localhost:5000/problem")
+                .asObject(new GenericType<List<String>>(){})
+                .getBody();
+    }
     public static Problem getProblemInstance(String problem){
         HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/"+problem).asJson();
         //HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/1").asJson();

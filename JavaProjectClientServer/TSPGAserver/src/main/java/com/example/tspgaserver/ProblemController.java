@@ -39,9 +39,9 @@ public class ProblemController {
     }
 
     @RequestMapping("/problem")
-    public List<Problem> fetchProblemList() throws ProblemNotFoundException {
+    public List<String> fetchProblemList() throws ProblemNotFoundException {
         System.out.println("heihei");
-        return problemService.findAll();
+        return problemService.findAll().stream().map(Problem::getName).toList();
     }
 
     @PostMapping("/problem/{name}")
