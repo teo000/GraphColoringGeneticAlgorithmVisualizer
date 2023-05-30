@@ -185,6 +185,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         }
         if (valori[0] == 0) {
             lastThatActuallyWorked = kStart;
+            copy_sir(sir_best, 0, sir_curent, indici[0]*candidateLength, candidateLength);
             wentToFar = true;
             System.out.println(kStart + 1);
 
@@ -199,7 +200,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
             copy_sir(sir_next, i * candidateLength, sir_curent, indici[i] * candidateLength, candidateLength);
         }
 
-        copy_sir(sir_best, 0, sir_curent, indici[0]*candidateLength, candidateLength);
+
 
         double un_random = Math.random();
         int de_cate_ori_baga_elitisti = 1;
