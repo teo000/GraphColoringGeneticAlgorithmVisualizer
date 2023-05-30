@@ -319,7 +319,7 @@ public class GeneticAlgorithm extends GraphColoringAlgorithm {
         }
 
         generation.setBestCandidate(sb.toString());
-        generation.setBestScore(lastThatActuallyWorked);
+        generation.setBestScore(lastThatActuallyWorked + 1);
 
        // solution.addGeneration(generation);
 

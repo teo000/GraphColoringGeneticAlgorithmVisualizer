@@ -28,19 +28,26 @@ public class ProblemController {
     Map<Long, GeneticAlgorithm> GAs = new HashMap<>();
     GeneticAlgorithm gen;
 
-    @RequestMapping("/problem/{id}")
-    public Problem fetchProblem(@PathVariable long id) throws ProblemNotFoundException {
+
+    @RequestMapping("/problem/{name}")
+    public Problem fetchProblem(@PathVariable String name) throws ProblemNotFoundException {
         System.out.println("hei");
-        Problem problem = problemService.findById(id);
+        Problem problem = problemService.findByName(name);
         if(problem == null)
             throw new ProblemNotFoundException();
         return problem;
     }
 
-    @PostMapping("/problem/{id}")
-    public long startAlg(@PathVariable long id) throws ProblemNotFoundException {
+    @RequestMapping("/problem")
+    public List<Problem> fetchProblemList() throws ProblemNotFoundException {
+        System.out.println("heihei");
+        return problemService.findAll();
+    }
+
+    @PostMapping("/problem/{name}")
+    public long startAlg(@PathVariable String name) throws ProblemNotFoundException {
         System.out.println("start Alg");
-        Problem problem = problemService.findById(id);
+        Problem problem = problemService.findByName(name);
         if(problem == null)
             throw new ProblemNotFoundException();
 
