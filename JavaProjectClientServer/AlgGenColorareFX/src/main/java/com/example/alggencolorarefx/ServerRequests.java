@@ -2,6 +2,7 @@ package com.example.alggencolorarefx;
 
 import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
+import com.example.alggencolorarefx.graph.Result;
 import com.google.gson.Gson;
 import kong.unirest.GenericType;
 import kong.unirest.HttpResponse;
@@ -32,5 +33,10 @@ public class ServerRequests {
     public static Generation getNextGeneration(long solution_id, int currentGeneration){
         HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/solution/" + solution_id + "/" + currentGeneration).asJson();
         return new Gson().fromJson(apiResponse.getBody().toString(), Generation.class);
+    }
+
+    public static Result getFastResult(String problemName){
+        HttpResponse<JsonNode> apiResponse = Unirest.get("http://localhost:5000/problem/"+problemName +"/getResult").asJson();
+        return new Gson().fromJson(apiResponse.getBody().toString(), Result.class);
     }
 }

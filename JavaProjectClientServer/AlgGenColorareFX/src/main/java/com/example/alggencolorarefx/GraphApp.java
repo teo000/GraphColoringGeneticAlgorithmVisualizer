@@ -2,6 +2,7 @@ package com.example.alggencolorarefx;
 
 import com.example.alggencolorarefx.graph.Generation;
 import com.example.alggencolorarefx.graph.Problem;
+import com.example.alggencolorarefx.graph.Result;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -534,6 +535,14 @@ public class GraphApp extends Application {
             public void handle(ActionEvent event) {
 
                 infoLabel.setText("Get Fast button clicked");
+                Result result = ServerRequests.getFastResult(chosenProblem);
+                System.out.println(result);
+
+                infoAboutGeneticAlg = "Nr nodes: " + instance.getNodesNo() + " Nr edges: " + instance.getEdgesNo() + " Best nr of colors: " + result.getFinalResult()
+                        + " Execution time: " + result.getTimeAsSeconds();
+                infoGeneticAlgLabel.setText(infoAboutGeneticAlg);
+
+                updateNodes(result.getFinalCandidate());
 
                 resetInfoLabelAfterDelay();
             }
