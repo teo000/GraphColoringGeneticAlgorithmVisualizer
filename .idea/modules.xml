@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/GeneticAlgorithmVisualizer/GeneticAlgorithmVisualizer.iml" filepath="$PROJECT_DIR$/GeneticAlgorithmVisualizer/GeneticAlgorithmVisualizer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/GraphColoringGeneticAlgorithmVisualizer.iml" filepath="$PROJECT_DIR$/.idea/GraphColoringGeneticAlgorithmVisualizer.iml" />
-    </modules>
-  </component>
-</project>
